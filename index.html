@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gravador</title>
+</head>
+<body>
+  <h2>Gravador de Áudio</h2>
+
+  <button onclick="start()">Iniciar</button>
+  <button onclick="stop()">Parar</button>
+
+  <p id="status">Aguardando...</p>
+  <audio id="audio" controls></audio>
+
+  <script>
+    let recorder;
+    let chunks = [];
+    let stream;
+
+    async function start() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recorder = new MediaRecorder(stream);
+        chunks = [];
+
+        recorder.ondataavailable = e => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+          const url = URL.createObjectURL(blob);
+          document.getElementById('audio').src = url;
+          document.getElementById('status').innerText = "Áudio gravado!";
+        };
+
+        recorder.start();
+        document.getElementById('status').innerText = "Gravando...";
+      } catch (e) {
+        document.getElementById('status').innerText = e.name + " - " + e.message;
+        console.error(e);
+      }
+    }
+
+    function stop() {
+      if (recorder && recorder.state === "recording") {
+        recorder.stop();
+      }
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+    }
+  </script>
+</body>
+</html>
