@@ -3,55 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gravador</title>
+  <title>Gravador de Áudio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    button {
+      margin-right: 10px;
+      margin-top: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    #startBtn {
+      background: #2563eb;
+      color: white;
+    }
+    #stopBtn {
+      background: #dc2626;
+      color: white;
+    }
+    #sendBtn {
+      background: #059669;
+      color: white;
+    }
+    #status {
+      margin-top: 16px;
+      font-weight: bold;
+    }
+    #timer {
+      margin-top: 8px;
+      color: #475569;
+    }
+    #actions {
+      margin-top: 18px;
+      display: none;
+    }
+    audio {
+      display: block;
+      margin-top: 16px;
+      width: 100%;
+    }
+    .box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Gravador de Áudio</h2>
+  <div class="box">
+    <h2>Gravador de Áudio</h2>
+    <p id="instruction">Grave o áudio e, ao final, clique em <strong>Usar este áudio</strong> para enviá-lo de volta ao formulário.</p>
 
-  <button onclick="start()">Iniciar</button>
-  <button onclick="stop()">Parar</button>
+    <button id="startBtn">Iniciar</button>
+    <button id="stopBtn">Parar</button>
 
-  <p id="status">Aguardando...</p>
-  <audio id="audio" controls></audio>
+    <p id="status">Aguardando...</p>
+    <p id="timer">Tempo: 0 s</p>
+
+    <audio id="audio" controls></audio>
+
+    <div id="actions">
+      <button id="sendBtn">Usar este áudio</button>
+    </div>
+  </div>
 
   <script>
     let recorder;
     let chunks = [];
     let stream;
+    let audioBase64 = null;
+    let audioMimeType = null;
+    let timerInterval = null;
+    let seconds = 0;
 
-    async function start() {
+    const params = new URLSearchParams(window.location.search);
+    const item = params.get('item');
+
+    function startTimer() {
+      seconds = 0;
+      document.getElementById('timer').innerText = 'Tempo: 0 s';
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        seconds += 1;
+        document.getElementById('timer').innerText = 'Tempo: ' + seconds + ' s';
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    document.getElementById('startBtn').onclick = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         recorder = new MediaRecorder(stream);
         chunks = [];
+        audioBase64 = null;
+        audioMimeType = null;
+        document.getElementById('actions').style.display = 'none';
 
         recorder.ondataavailable = e => {
           if (e.data.size > 0) chunks.push(e.data);
         };
 
-        recorder.onstop = () => {
+        recorder.onstop = async () => {
           const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
           const url = URL.createObjectURL(blob);
           document.getElementById('audio').src = url;
-          document.getElementById('status').innerText = "Áudio gravado!";
+          document.getElementById('status').innerText = 'Áudio gravado com sucesso.';
+          audioMimeType = recorder.mimeType || 'audio/webm';
+          audioBase64 = await blobToBase64(blob);
+          document.getElementById('actions').style.display = 'block';
         };
 
         recorder.start();
-        document.getElementById('status').innerText = "Gravando...";
+        startTimer();
+        document.getElementById('status').innerText = 'Gravando...';
       } catch (e) {
-        document.getElementById('status').innerText = e.name + " - " + e.message;
+        document.getElementById('status').innerText = e.name + ' - ' + e.message;
         console.error(e);
       }
-    }
+    };
 
-    function stop() {
-      if (recorder && recorder.state === "recording") {
+    document.getElementById('stopBtn').onclick = () => {
+      if (recorder && recorder.state === 'recording') {
         recorder.stop();
       }
       if (stream) {
         stream.getTracks().forEach(t => t.stop());
       }
-    }
+      stopTimer();
+    };
+
+    document.getElementById('sendBtn').onclick = () => {
+      if (!audioBase64 || !item) {
+        alert('Áudio ou item não disponível.');
+        return;
+      }
+
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'RECORDED_AUDIO',
+          item: item,
+          audioBase64: audioBase64,
+          mimeType: audioMimeType
+        }, '*');
+
+        document.getElementById('status').innerText = 'Áudio enviado para o formulário. Você já pode fechar esta janela.';
+      } else {
+        alert('Janela de origem não encontrada.');
+      }
+    };
   </script>
 </body>
 </html>
