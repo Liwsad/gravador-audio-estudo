@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gravação de Áudio — Pesquisa de Saúde Mental</title>
+  <title>Pesquisa de Saúde Mental</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
     }
 
     .container {
-      max-width: 700px;
+      max-width: 900px;
       margin: 30px auto;
       background: #ffffff;
       border-radius: 12px;
@@ -22,440 +22,452 @@
       padding: 28px;
     }
 
-    h1 { margin-top: 0; font-size: 24px; }
-    p.intro { color: #475569; line-height: 1.5; }
+    h1 { margin-top: 0; font-size: 28px; }
+    h2 { margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; font-size: 22px; }
 
-    .progress-banner {
-      margin: 16px 0 22px 0;
-      padding: 14px 16px;
-      background: #eff6ff;
-      border: 1px solid #93c5fd;
-      border-radius: 10px;
-      color: #1d4ed8;
-      font-weight: 600;
-    }
-
-    .audio-card {
+    .field {
       margin-bottom: 22px;
-      padding: 18px;
+      padding: 16px;
       background: #fafafa;
       border: 1px solid #e5e7eb;
-      border-radius: 12px;
+      border-radius: 10px;
     }
 
-    .audio-card.done { background: #ecfdf5; border-color: #10b981; }
+    .field label.question { display: block; font-weight: bold; margin-bottom: 10px; line-height: 1.45; }
 
-    .audio-card .pergunta { font-weight: bold; line-height: 1.5; margin-bottom: 12px; }
-
-    .status-line { font-size: 14px; color: #475569; margin-bottom: 10px; min-height: 20px; }
-
-    .timer { font-weight: bold; color: #dc2626; }
-
-    audio { width: 100%; margin: 10px 0; }
-
-    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-
-    button {
-      border: none;
+    input[type="text"], input[type="email"], input[type="date"] {
+      width: 100%;
+      padding: 12px;
       border-radius: 8px;
-      padding: 12px 16px;
-      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      box-sizing: border-box;
       font-size: 15px;
+      margin-top: 6px;
     }
 
-    .btn-record { background: #2563eb; color: white; }
-    .btn-stop { background: #dc2626; color: white; }
-    .btn-redo { background: #64748b; color: white; }
-    .btn-retry { background: #d97706; color: white; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .radio-group { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 
-    .error {
-      color: #b91c1c;
-      font-size: 14px;
-      margin-top: 10px;
-      padding: 10px;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
     }
 
-    .success-final {
+    .enunciado {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #111827;
+      background: #eef2ff;
+      border-left: 5px solid #4f46e5;
+    }
+
+    button { border: none; border-radius: 8px; padding: 12px 16px; cursor: pointer; font-size: 15px; }
+
+    .btn-submit {
+      width: 100%;
+      background: #059669;
+      color: white;
+      font-size: 17px;
+      padding: 14px;
+      margin-top: 24px;
+    }
+
+    .btn-continue {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      padding: 14px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      margin-top: 12px;
+    }
+
+    .error { color: #b91c1c; font-size: 14px; margin-top: 8px; }
+
+    .success {
       background: #ecfdf5;
       border: 1px solid #10b981;
       color: #065f46;
-      padding: 20px;
+      padding: 18px;
       border-radius: 10px;
       margin-top: 20px;
       line-height: 1.6;
-      text-align: center;
     }
 
     .hidden { display: none; }
+    .loading { opacity: 0.6; pointer-events: none; }
+
+    .saved-indicator { margin-top: 16px; font-size: 13px; color: #475569; }
 
     .spinner {
       display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid #cbd5e1;
-      border-top-color: #2563eb;
+      width: 16px; height: 16px;
+      border: 2px solid #a7f3d0;
+      border-top-color: #059669;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       vertical-align: middle;
-      margin-right: 6px;
+      margin-right: 8px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Gravação de Áudio</h1>
-    <p class="intro" id="introText">Este é o último passo da sua participação. Grave os áudios abaixo diretamente nesta página — não é necessário abrir nenhuma outra janela.</p>
+    <h1>Pesquisa de Saúde Mental</h1>
+    <p id="introText">Por favor, responda às perguntas abaixo. O progresso é salvo automaticamente ao longo do preenchimento. Ao final, você será direcionado(a) para a etapa de gravação de dois áudios curtos, para concluir sua participação.</p>
 
-    <div class="progress-banner" id="progressBanner">Carregando...</div>
+    <form id="researchForm"></form>
 
-    <div id="cardsContainer"></div>
-
-    <div id="finalMessage"></div>
+    <div class="saved-indicator" id="savedIndicator">Formulário carregado. O progresso será salvo automaticamente.</div>
+    <div id="statusMessage"></div>
   </div>
 
   <script>
     // ---------------------------------------------------------------------
     // CONFIGURAÇÃO — cole aqui a URL do seu Web App do Apps Script (a URL
     // que termina em /exec, obtida em "Implantar > Gerenciar implantações").
+    // Esta página não depende mais do Apps Script pra ser exibida — ele é
+    // usado só como backend (API) para salvar as respostas.
     // ---------------------------------------------------------------------
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXIt1PU5TRoYYWiFhzGSOPr0lsxfPvi2LSRgLHouLGRM5aiUML4tCqIOrm2aZowMFFtw/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwb3tHZ29aZQVGDD7hHhUnaqDHgi66wdmwPg2-Wz1WgNSSqdYKxFOQruHM5juXxYhw_JA/exec';
 
-    const AUDIO_ITEMS = [
+    // Página de áudio (Etapa 2), no mesmo repositório/pasta desta página.
+    const AUDIO_PAGE = 'audio.html';
+
+    const CONSENT_ITEMS = ['Identificacao_0', 'Identificacao_00'];
+
+    const FORM_DEF = [
       {
-        item: 'Audio_01',
-        pergunta: 'Grave um áudio contando de 1 a 10, pausadamente, como se estivesse contando os segundos.'
+        bloco: 'TCLE',
+        item: 'Identificacao_0',
+        pergunta: 'Você está sendo convidado(a) a participar de uma pesquisa sobre saúde mental intitulada "Características Acústicas da Voz como Indicadores Computacionais de Dimensões Emocionais em Crianças e Adolescentes". Sua participação consiste em autorizar seu filho(a) a responder dois questionários que avaliam aspectos emocionais e comportamentais. O(a) participante também realizará tarefas simples de fala, com gravação de voz por meio de equipamento digital adequado. Tenha em mente que as gravações de voz serão analisadas exclusivamente quanto a parâmetros acústicos, como frequência, intensidade e variabilidade da fala, portanto não será realizada transcrição nem análise do conteúdo (significado) do que é falado, e os dados serão utilizados apenas para fins científicos, sem identificação dos participantes. O tempo estimado é de 15 a 20 minutos. Sua participação é voluntária, e você pode interromper a qualquer momento, sem qualquer prejuízo. Algumas perguntas podem gerar leve desconforto, caso isso aconteça, o(a) participante pode parar de responder quando quiser. Em caso de dúvidas ou considerações sobre a pesquisa ou seus aspectos éticos, você pode entrar em contato com o Comitê de Ética em Pesquisa (CEP) responsável através do email: cepsc@santacasasp.org.br ou telefone: 2176-7000 ramal 7711. Além disso, você pode buscar contato com o pesquisador responsável, Prof. Dr. Lucas Murrins Marques por email: lucas.murrins@fcmsantacasasp.edu.br. Ao selecionar "Concordo", você declara que leu as informações acima e aceita participar da pesquisa.',
+        tipo: 'Opcoes', opcoes: ['Concordo', 'Discordo'], obrigatorio: true
       },
       {
-        item: 'Audio_02',
-        pergunta: 'Grave um áudio contando como foi a sua última semana.'
-      }
+        bloco: 'TALE',
+        item: 'Identificacao_00',
+        pergunta: 'Você está sendo convidado(a) a participar de uma pesquisa chamada "Características Acústicas da Voz como Indicadores Computacionais de Dimensões Emocionais em Crianças e Adolescentes". Essa pesquisa quer estudar a voz para entender melhor como algumas características do jeito de falar (como tom, intensidade e variação da voz) podem estar relacionadas a emoções, comportamentos e formas de comunicação em crianças e adolescentes. Sua participação consiste em responder dois questionários simples sobre emoções e comportamentos e realizar tarefas simples de fala como contar números ou falar um pouco sobre sua semana, enquanto sua voz é gravada. Pode ser também que seus pais também respondam a algumas perguntas. Tenha em mente que somente o jeito de falar será avaliado (como por exemplo o tom, intensidade e variação da voz), e não o conteúdo falado, e os dados serão utilizados apenas para fins científicos, sem identificação dos participantes. O tempo estimado é de 15 a 20 minutos. Sua participação é voluntária, e você pode interromper a qualquer momento, sem qualquer prejuízo. Algumas perguntas podem gerar leve desconforto, caso isso aconteça, você pode pausar ou parar de responder quando quiser. Em caso de dúvidas ou considerações sobre a pesquisa ou seus aspectos éticos, você ou seus pais/responsáveis podem entrar em contato com o Comitê de Ética em Pesquisa (CEP) responsável através do email: cepsc@santacasasp.org.br ou telefone: 2176-7000 ramal 7711. Além disso, vocês podem buscar contato com o pesquisador responsável, Prof. Dr. Lucas Murrins Marques por email: lucas.murrins@fcmsantacasasp.edu.br. Seus pais ou responsáveis já autorizaram sua participação nessa pesquisa, mas você só participa se quiser, e ao selecionar "Concordo", você declara que leu as informações acima e aceita participar do estudo.',
+        tipo: 'Opcoes', opcoes: ['Concordo', 'Discordo'], obrigatorio: true
+      },
+      { bloco: 'Identificacao', item: 'Identificacao_01', pergunta: 'Qual seu nome completo?', tipo: 'Texto', opcoes: [], obrigatorio: true },
+      { bloco: 'Identificacao', item: 'Identificacao_02', pergunta: 'Qual sua data de nascimento? (DD/MM/AAAA)', tipo: 'Data', opcoes: [], obrigatorio: true },
+      { bloco: 'Identificacao', item: 'Identificacao_03', pergunta: 'Qual seu e-mail?', tipo: 'Texto', opcoes: [], obrigatorio: true },
+      { bloco: 'Identificacao', item: 'Identificacao_04', pergunta: 'Qual o e-mail do seu responsável?', tipo: 'Texto', opcoes: [], obrigatorio: true },
+      { bloco: 'Identificacao', item: 'Identificacao_05', pergunta: 'Qual seu sexo?', tipo: 'Opcoes', opcoes: ['Masculino', 'Feminino', 'Outro', 'Prefiro não responder'], obrigatorio: true },
+      { bloco: 'Identificacao', item: 'Identificacao_06', pergunta: 'Qual sua cidade/estado de origem?', tipo: 'Texto', opcoes: [], obrigatorio: true },
+      { bloco: 'Identificacao', item: 'Identificacao_08', pergunta: 'Possui algum diagnóstico de transtorno mental/transtorno do neurodesenvolvimento? (nomeie)', tipo: 'Texto', opcoes: [], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_00', pergunta: 'Questionário GAD7 - Agora vou pedir para você avaliar em relação às suas duas últimas semanas. Com que frequência você foi incomodado/a pelos problemas abaixo:', tipo: 'Enunciado', opcoes: [], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_01', pergunta: 'Nervoso, ansioso ou muito tenso', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_02', pergunta: 'Não conseguir parar ou controlar preocupações', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_03', pergunta: 'Preocupar-se demais com diferentes coisas', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_04', pergunta: 'Dificuldade para relaxar', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_05', pergunta: 'Ficar tão inquieto que é difícil ficar parado', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_06', pergunta: 'Ficar facilmente irritado ou incomodado', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'GAD-7', item: 'GAD-7_07', pergunta: 'Sentir medo como se algo terrível fosse acontecer', tipo: 'Opcoes', opcoes: ['Nada', 'Muito pouco', 'Mais ou menos', 'Bastante', 'Extremamente'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_00', pergunta: 'Questionário PHQ-9 - Agora vou pedir para você avaliar em relação às suas duas últimas semanas. Com que frequência você foi incomodado/a pelos problemas abaixo:', tipo: 'Enunciado', opcoes: [], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_01', pergunta: 'Pouco interesse ou prazer em fazer as coisas', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_02', pergunta: 'Sentir-se para baixo, deprimido ou sem esperança', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_03', pergunta: 'Dificuldade para dormir ou dormir demais', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_04', pergunta: 'Sentir-se cansado ou com pouca energia', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_05', pergunta: 'Falta de apetite ou comer demais', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_06', pergunta: 'Sentir-se mal consigo mesmo ou fracassado', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_07', pergunta: 'Dificuldade de concentração', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_08', pergunta: 'Lentidão ou agitação ao movimentar-se ou falar', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true },
+      { bloco: 'PHQ-9', item: 'PHQ-9_09', pergunta: 'Pensamentos de morte ou autoagressão', tipo: 'Opcoes', opcoes: ['Nenhuma vez', 'Vários dias', 'Mais da metade dos dias', 'Quase todos os dias'], obrigatorio: true }
     ];
 
-    const params = new URLSearchParams(window.location.search);
-    const draftId = params.get('draftId');
-    const participantId = params.get('participantId');
+    let draftId = null;
+    let participantId = null;
+    const respostas = {};
 
-    const recordings = {};   // item -> { blob, uploaded: bool }
-    const mediaState = {};   // item -> { stream, recorder, chunks, timerInterval, seconds }
+    let autosaveTimer = null;
+    let autosaveInFlight = false;
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function() {
+      draftId = gerarId('DRAFT');
+      participantId = gerarId('P');
+      renderForm();
+    });
 
-    async function init() {
-      if (!draftId || !participantId) {
-        document.getElementById('progressBanner').outerHTML =
-          '<div class="error">Link inválido ou incompleto. Volte à etapa anterior e use o link fornecido ao final do questionário.</div>';
+    function gerarId(prefixo) {
+      return prefixo + '_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
+    function renderForm() {
+      const form = document.getElementById('researchForm');
+      form.innerHTML = '';
+
+      const blocos = agruparPorBloco(FORM_DEF);
+
+      Object.keys(blocos).forEach(function(blocoNome) {
+        const section = document.createElement('div');
+        const title = document.createElement('h2');
+        title.textContent = blocoNome;
+        section.appendChild(title);
+
+        blocos[blocoNome].forEach(function(campo) {
+          section.appendChild(renderField(campo));
+        });
+
+        form.appendChild(section);
+      });
+
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'button';
+      submitBtn.className = 'btn-submit';
+      submitBtn.textContent = 'Continuar para a gravação de áudio';
+      submitBtn.addEventListener('click', enviarFormulario);
+      form.appendChild(submitBtn);
+    }
+
+    function agruparPorBloco(def) {
+      const grouped = {};
+      def.forEach(item => {
+        if (!grouped[item.bloco]) grouped[item.bloco] = [];
+        grouped[item.bloco].push(item);
+      });
+      return grouped;
+    }
+
+    function renderField(campo) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'field';
+      wrapper.id = 'field_' + sanitizeId(campo.item);
+
+      if (campo.tipo === 'Enunciado') {
+        wrapper.classList.add('enunciado');
+        wrapper.textContent = campo.pergunta;
+        return wrapper;
+      }
+
+      const label = document.createElement('label');
+      label.className = 'question';
+      label.textContent = campo.pergunta + (campo.obrigatorio ? ' *' : '');
+      wrapper.appendChild(label);
+
+      if (campo.tipo === 'Texto') {
+        const input = document.createElement('input');
+        input.type = (campo.item === 'Identificacao_03' || campo.item === 'Identificacao_04') ? 'email' : 'text';
+        input.name = campo.item;
+        input.oninput = e => { respostas[campo.item] = e.target.value; scheduleAutosave(); };
+        wrapper.appendChild(input);
+      }
+
+      if (campo.tipo === 'Data') {
+        const input = document.createElement('input');
+        input.type = 'date';
+        input.name = campo.item;
+        input.oninput = e => { respostas[campo.item] = formatDateBR(e.target.value); scheduleAutosave(); };
+        wrapper.appendChild(input);
+      }
+
+      if (campo.tipo === 'Opcoes') {
+        const group = document.createElement('div');
+        group.className = 'radio-group';
+
+        campo.opcoes.forEach(function(op) {
+          const optionId = sanitizeId(campo.item + '_' + op);
+          const div = document.createElement('label');
+          div.className = 'radio-option';
+          div.setAttribute('for', optionId);
+
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = campo.item;
+          input.id = optionId;
+          input.value = op;
+          input.onchange = function(e) {
+            respostas[campo.item] = e.target.value;
+            scheduleAutosave();
+            if (CONSENT_ITEMS.indexOf(campo.item) !== -1) updateConsentGuard();
+          };
+
+          const span = document.createElement('span');
+          span.textContent = op;
+
+          div.appendChild(input);
+          div.appendChild(span);
+          group.appendChild(div);
+        });
+
+        wrapper.appendChild(group);
+      }
+
+      const error = document.createElement('div');
+      error.className = 'error hidden';
+      error.id = 'error_' + sanitizeId(campo.item);
+      wrapper.appendChild(error);
+
+      return wrapper;
+    }
+
+    function updateConsentGuard() {
+      const tcle = respostas['Identificacao_0'];
+      const tale = respostas['Identificacao_00'];
+
+      if (tcle === 'Discordo' || tale === 'Discordo') {
+        bloquearFormularioPorDiscordancia();
+      } else if (tcle === 'Concordo' && tale === 'Concordo') {
+        desbloquearFormulario();
+      } else {
+        document.getElementById('statusMessage').innerHTML = '';
+      }
+    }
+
+    function bloquearFormularioPorDiscordancia() {
+      const form = document.getElementById('researchForm');
+      Array.from(form.elements).forEach(function(el) {
+        if (CONSENT_ITEMS.indexOf(el.name) === -1) el.disabled = true;
+      });
+
+      document.getElementById('statusMessage').innerHTML =
+        '<div class="error">Você marcou “Discordo” em um dos termos de consentimento. O formulário foi encerrado e não pode ser enviado, a menos que a resposta seja alterada para “Concordo”.</div>';
+      scheduleAutosave();
+    }
+
+    function desbloquearFormulario() {
+      const form = document.getElementById('researchForm');
+      Array.from(form.elements).forEach(function(el) { el.disabled = false; });
+      document.getElementById('statusMessage').innerHTML = '';
+      scheduleAutosave();
+    }
+
+    function validarFormulario() {
+      let ok = true;
+
+      FORM_DEF.forEach(function(campo) {
+        if (!campo.obrigatorio || campo.tipo === 'Enunciado') return;
+
+        const valor = respostas[campo.item];
+        if (valor === undefined || valor === null || String(valor).trim() === '') {
+          showError(campo.item, 'Este campo é obrigatório.');
+          ok = false;
+        } else {
+          resetError(campo.item);
+        }
+      });
+
+      CONSENT_ITEMS.forEach(function(item) {
+        if (respostas[item] !== 'Concordo') {
+          showError(item, 'É necessário concordar com este termo para participar.');
+          ok = false;
+        }
+      });
+
+      return ok;
+    }
+
+    function scheduleAutosave() {
+      updateSavedIndicator('Salvando progresso...');
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(salvarRascunhoSilencioso, 1200);
+    }
+
+    async function salvarRascunhoSilencioso() {
+      if (autosaveInFlight) return;
+      autosaveInFlight = true;
+
+      try {
+        const resp = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'rascunho', draftId: draftId, participantId: participantId, respostas: respostas })
+        });
+        const data = await resp.json();
+        autosaveInFlight = false;
+        updateSavedIndicator(data.status === 'sucesso' ? 'Progresso salvo automaticamente.' : 'Falha ao salvar rascunho: ' + data.message);
+      } catch (err) {
+        autosaveInFlight = false;
+        updateSavedIndicator('Falha ao salvar rascunho (sem conexão).');
+      }
+    }
+
+    async function enviarFormulario() {
+      if (!validarFormulario()) {
+        document.getElementById('statusMessage').innerHTML =
+          '<div class="error">Por favor, revise os campos obrigatórios antes de continuar.</div>';
         return;
       }
 
-      renderCards();
-      await carregarStatus();
-    }
-
-    function renderCards() {
-      const container = document.getElementById('cardsContainer');
-      container.innerHTML = '';
-
-      AUDIO_ITEMS.forEach(function(cfg) {
-        const card = document.createElement('div');
-        card.className = 'audio-card';
-        card.id = 'card_' + cfg.item;
-
-        const pergunta = document.createElement('div');
-        pergunta.className = 'pergunta';
-        pergunta.textContent = cfg.pergunta;
-        card.appendChild(pergunta);
-
-        const statusLine = document.createElement('div');
-        statusLine.className = 'status-line';
-        statusLine.id = 'status_' + cfg.item;
-        statusLine.textContent = 'Nenhum áudio gravado.';
-        card.appendChild(statusLine);
-
-        const audioPreview = document.createElement('audio');
-        audioPreview.id = 'preview_' + cfg.item;
-        audioPreview.controls = true;
-        audioPreview.className = 'hidden';
-        card.appendChild(audioPreview);
-
-        const controls = document.createElement('div');
-        controls.className = 'controls';
-        controls.id = 'controls_' + cfg.item;
-
-        const btnRecord = document.createElement('button');
-        btnRecord.className = 'btn-record';
-        btnRecord.id = 'btnRecord_' + cfg.item;
-        btnRecord.textContent = '🎙️ Gravar áudio';
-        btnRecord.onclick = function() { toggleRecording(cfg.item); };
-        controls.appendChild(btnRecord);
-
-        card.appendChild(controls);
-
-        const errorBox = document.createElement('div');
-        errorBox.className = 'error hidden';
-        errorBox.id = 'error_' + cfg.item;
-        card.appendChild(errorBox);
-
-        container.appendChild(card);
-      });
-    }
-
-    async function carregarStatus() {
-      try {
-        const url = APPS_SCRIPT_URL + '?action=status&draftId=' + encodeURIComponent(draftId);
-        const resp = await fetch(url);
-        const data = await resp.json();
-
-        if (data.status !== 'sucesso') {
-          document.getElementById('progressBanner').outerHTML =
-            '<div class="error">' + (data.message || 'Não foi possível carregar seu progresso.') + '</div>';
-          return;
-        }
-
-        (data.itensEnviados || []).forEach(function(item) {
-          recordings[item] = { blob: null, uploaded: true };
-          marcarItemComoEnviado(item);
-        });
-
-        atualizarBannerProgresso();
-        verificarConclusao();
-      } catch (err) {
-        document.getElementById('progressBanner').outerHTML =
-          '<div class="error">Não foi possível conectar ao servidor.<br>' +
-          '<small>Detalhe técnico: ' + (err && err.message ? err.message : String(err)) + '</small><br>' +
-          '<small>URL usada: ' + APPS_SCRIPT_URL + '</small><br><br>' +
-          '<button class="btn-retry" onclick="location.reload()">🔄 Tentar novamente</button></div>';
-      }
-    }
-
-    function atualizarBannerProgresso() {
-      const total = AUDIO_ITEMS.length;
-      const enviados = AUDIO_ITEMS.filter(function(c) { return recordings[c.item] && recordings[c.item].uploaded; }).length;
-      const banner = document.getElementById('progressBanner');
-      if (banner) banner.textContent = 'Áudios concluídos: ' + enviados + ' de ' + total;
-    }
-
-    function marcarItemComoEnviado(item) {
-      const card = document.getElementById('card_' + item);
-      if (card) card.classList.add('done');
-
-      const status = document.getElementById('status_' + item);
-      if (status) status.textContent = '✔ Áudio enviado com sucesso.';
-
-      const controls = document.getElementById('controls_' + item);
-      if (controls) {
-        controls.innerHTML = '';
-        const btnRedo = document.createElement('button');
-        btnRedo.className = 'btn-redo';
-        btnRedo.textContent = '🔁 Regravar';
-        btnRedo.onclick = function() { habilitarRegravacao(item); };
-        controls.appendChild(btnRedo);
-      }
-    }
-
-    function habilitarRegravacao(item) {
-      recordings[item] = { blob: null, uploaded: false };
-      const card = document.getElementById('card_' + item);
-      if (card) card.classList.remove('done');
-
-      document.getElementById('status_' + item).textContent = 'Nenhum áudio gravado.';
-      const preview = document.getElementById('preview_' + item);
-      preview.src = '';
-      preview.classList.add('hidden');
-
-      const controls = document.getElementById('controls_' + item);
-      controls.innerHTML = '';
-      const btnRecord = document.createElement('button');
-      btnRecord.className = 'btn-record';
-      btnRecord.id = 'btnRecord_' + item;
-      btnRecord.textContent = '🎙️ Gravar áudio';
-      btnRecord.onclick = function() { toggleRecording(item); };
-      controls.appendChild(btnRecord);
-
-      atualizarBannerProgresso();
-    }
-
-    // -----------------------------------------------------------------
-    // Gravação (getUserMedia + MediaRecorder), tudo na mesma página
-    // -----------------------------------------------------------------
-
-    async function toggleRecording(item) {
-      const state = mediaState[item];
-      if (state && state.recording) {
-        pararGravacao(item);
-      } else {
-        iniciarGravacao(item);
-      }
-    }
-
-    async function iniciarGravacao(item) {
-      resetError(item);
+      const form = document.getElementById('researchForm');
+      form.classList.add('loading');
+      document.getElementById('statusMessage').innerHTML =
+        '<div class="hint"><span class="spinner"></span>Enviando respostas, aguarde...</div>';
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mimeType = escolherMimeSuportado();
-        const recorder = new MediaRecorder(stream, mimeType ? { mimeType: mimeType } : undefined);
-        const chunks = [];
-
-        recorder.ondataavailable = function(e) {
-          if (e.data && e.data.size > 0) chunks.push(e.data);
-        };
-
-        recorder.onstop = function() {
-          const blob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'audio/webm' });
-          stream.getTracks().forEach(function(t) { t.stop(); });
-          onGravacaoFinalizada(item, blob);
-        };
-
-        mediaState[item] = { stream: stream, recorder: recorder, recording: true, seconds: 0 };
-        recorder.start();
-
-        const btn = document.getElementById('btnRecord_' + item);
-        if (btn) {
-          btn.className = 'btn-stop';
-          btn.textContent = '⏹️ Parar gravação (0:00)';
-        }
-
-        mediaState[item].timerInterval = setInterval(function() {
-          mediaState[item].seconds++;
-          const s = mediaState[item].seconds;
-          const mm = Math.floor(s / 60);
-          const ss = String(s % 60).padStart(2, '0');
-          if (btn) btn.textContent = '⏹️ Parar gravação (' + mm + ':' + ss + ')';
-        }, 1000);
-
-        document.getElementById('status_' + item).textContent = 'Gravando...';
-      } catch (err) {
-        showError(item, 'Não foi possível acessar o microfone. Verifique se você permitiu o uso do microfone para este site (nas configurações do navegador) e tente novamente.');
-      }
-    }
-
-    function pararGravacao(item) {
-      const state = mediaState[item];
-      if (!state || !state.recording) return;
-
-      state.recording = false;
-      clearInterval(state.timerInterval);
-      state.recorder.stop();
-    }
-
-    function onGravacaoFinalizada(item, blob) {
-      recordings[item] = { blob: blob, uploaded: false };
-
-      const preview = document.getElementById('preview_' + item);
-      preview.src = URL.createObjectURL(blob);
-      preview.classList.remove('hidden');
-
-      document.getElementById('status_' + item).innerHTML = '<span class="spinner"></span>Enviando áudio...';
-
-      const controls = document.getElementById('controls_' + item);
-      controls.innerHTML = '';
-
-      enviarAudio(item, blob);
-    }
-
-    function escolherMimeSuportado() {
-      const candidatos = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
-      if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
-      for (let i = 0; i < candidatos.length; i++) {
-        if (MediaRecorder.isTypeSupported(candidatos[i])) return candidatos[i];
-      }
-      return '';
-    }
-
-    // -----------------------------------------------------------------
-    // Envio para o Apps Script
-    // -----------------------------------------------------------------
-
-    function blobParaBase64(blob) {
-      return new Promise(function(resolve, reject) {
-        const reader = new FileReader();
-        reader.onloadend = function() { resolve(reader.result); };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    }
-
-    async function enviarAudio(item, blob) {
-      try {
-        const base64 = await blobParaBase64(blob);
-
         const resp = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          // Content-Type text/plain evita o preflight OPTIONS (que o Apps Script não suporta).
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            draftId: draftId,
-            participantId: participantId,
-            item: item,
-            audioBase64: base64
-          })
+          body: JSON.stringify({ action: 'submissao', draftId: draftId, participantId: participantId, respostas: respostas })
         });
-
         const data = await resp.json();
+        form.classList.remove('loading');
 
         if (data.status === 'sucesso') {
-          recordings[item].uploaded = true;
-          marcarItemComoEnviado(item);
-          atualizarBannerProgresso();
-          verificarConclusao();
+          mostrarTelaDeTransicao();
         } else {
-          mostrarErroDeEnvio(item, blob, data.message || 'Erro ao salvar o áudio.');
+          document.getElementById('statusMessage').innerHTML = '<div class="error">Erro: ' + data.message + '</div>';
         }
       } catch (err) {
-        mostrarErroDeEnvio(item, blob, 'Falha de conexão ao enviar o áudio. Detalhe: ' + (err && err.message ? err.message : String(err)));
+        form.classList.remove('loading');
+        document.getElementById('statusMessage').innerHTML =
+          '<div class="error">Erro ao enviar (sem conexão). Suas respostas continuam salvas como rascunho — tente novamente.</div>';
       }
     }
 
-    function mostrarErroDeEnvio(item, blob, mensagem) {
-      showError(item, mensagem + ' O áudio gravado foi mantido — toque em "Tentar novamente".');
-      document.getElementById('status_' + item).textContent = 'Envio falhou.';
+    // Como esta página NÃO roda dentro de nenhum iframe do Google, a navegação
+    // normal (window.location.href) funciona perfeitamente, sem restrições.
+    function mostrarTelaDeTransicao() {
+      const link = AUDIO_PAGE + '?draftId=' + encodeURIComponent(draftId) + '&participantId=' + encodeURIComponent(participantId);
 
-      const controls = document.getElementById('controls_' + item);
-      controls.innerHTML = '';
+      document.getElementById('researchForm').innerHTML = '';
+      document.getElementById('introText').classList.add('hidden');
+      document.getElementById('savedIndicator').classList.add('hidden');
 
-      const btnRetry = document.createElement('button');
-      btnRetry.className = 'btn-retry';
-      btnRetry.textContent = '🔄 Tentar novamente';
-      btnRetry.onclick = function() {
-        resetError(item);
-        document.getElementById('status_' + item).innerHTML = '<span class="spinner"></span>Enviando áudio...';
-        controls.innerHTML = '';
-        enviarAudio(item, blob);
-      };
-      controls.appendChild(btnRetry);
+      document.getElementById('statusMessage').innerHTML =
+        '<div class="success">' +
+        'Suas respostas foram registradas com sucesso!<br><br>' +
+        'Falta apenas um passo: gravar 2 áudios curtos. Você será direcionado(a) automaticamente em instantes.<br>' +
+        '<a class="btn-continue" href="' + link + '">Continuar agora para a gravação de áudio</a>' +
+        '</div>';
 
-      const btnRedo = document.createElement('button');
-      btnRedo.className = 'btn-redo';
-      btnRedo.textContent = '🔁 Regravar';
-      btnRedo.onclick = function() { habilitarRegravacao(item); };
-      controls.appendChild(btnRedo);
+      setTimeout(function() { window.location.href = link; }, 2000);
     }
 
-    function verificarConclusao() {
-      const todosEnviados = AUDIO_ITEMS.every(function(c) {
-        return recordings[c.item] && recordings[c.item].uploaded;
-      });
-
-      if (todosEnviados) {
-        document.getElementById('introText').classList.add('hidden');
-        document.getElementById('finalMessage').innerHTML =
-          '<div class="success-final"><strong>Obrigado pela sua participação!</strong><br>Seus áudios foram registrados com sucesso. Você já pode fechar esta página.</div>';
-      }
+    function updateSavedIndicator(text) {
+      const el = document.getElementById('savedIndicator');
+      if (el) el.textContent = text;
     }
+
+    function sanitizeId(str) { return String(str).replace(/[^a-zA-Z0-9_-]/g, '_'); }
 
     function showError(item, msg) {
-      const el = document.getElementById('error_' + item);
+      const el = document.getElementById('error_' + sanitizeId(item));
       if (el) { el.textContent = msg; el.classList.remove('hidden'); }
     }
 
     function resetError(item) {
-      const el = document.getElementById('error_' + item);
+      const el = document.getElementById('error_' + sanitizeId(item));
       if (el) { el.textContent = ''; el.classList.add('hidden'); }
     }
+
+    function formatDateBR(isoDate) {
+      if (!isoDate) return '';
+      const parts = isoDate.split('-');
+      if (parts.length !== 3) return isoDate;
+      return parts[2] + '/' + parts[1] + '/' + parts[0];
+    }
+
+    window.addEventListener('beforeunload', function() {
+      salvarRascunhoSilencioso();
+    });
   </script>
 </body>
 </html>
