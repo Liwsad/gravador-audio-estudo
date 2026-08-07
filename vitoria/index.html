@@ -122,7 +122,7 @@
     // CONFIGURAÇÃO — cole aqui a URL do seu Web App do Apps Script (a URL
     // que termina em /exec, obtida em "Implantar > Gerenciar implantações").
     // ---------------------------------------------------------------------
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzL4wpHZwnYjV_bgjwbPnTFaebEg6fW7fiVfrPdwTfMQIXjbWV8F8HWo6-zyQh1YQ6a7Q/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXIt1PU5TRoYYWiFhzGSOPr0lsxfPvi2LSRgLHouLGRM5aiUML4tCqIOrm2aZowMFFtw/exec';
 
     const AUDIO_ITEMS = [
       {
@@ -224,7 +224,10 @@
         verificarConclusao();
       } catch (err) {
         document.getElementById('progressBanner').outerHTML =
-          '<div class="error">Não foi possível conectar ao servidor. Verifique sua internet e recarregue a página.</div>';
+          '<div class="error">Não foi possível conectar ao servidor.<br>' +
+          '<small>Detalhe técnico: ' + (err && err.message ? err.message : String(err)) + '</small><br>' +
+          '<small>URL usada: ' + APPS_SCRIPT_URL + '</small><br><br>' +
+          '<button class="btn-retry" onclick="location.reload()">🔄 Tentar novamente</button></div>';
       }
     }
 
@@ -403,7 +406,7 @@
           mostrarErroDeEnvio(item, blob, data.message || 'Erro ao salvar o áudio.');
         }
       } catch (err) {
-        mostrarErroDeEnvio(item, blob, 'Falha de conexão ao enviar o áudio. Verifique sua internet.');
+        mostrarErroDeEnvio(item, blob, 'Falha de conexão ao enviar o áudio. Detalhe: ' + (err && err.message ? err.message : String(err)));
       }
     }
 
