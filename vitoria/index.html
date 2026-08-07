@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravação de Áudio — Pesquisa de Saúde Mental</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      padding: 28px;
+    }
+
+    h1 { margin-top: 0; font-size: 24px; }
+    p.intro { color: #475569; line-height: 1.5; }
+
+    .progress-banner {
+      margin: 16px 0 22px 0;
+      padding: 14px 16px;
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      border-radius: 10px;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    .audio-card {
+      margin-bottom: 22px;
+      padding: 18px;
+      background: #fafafa;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+    }
+
+    .audio-card.done { background: #ecfdf5; border-color: #10b981; }
+
+    .audio-card .pergunta { font-weight: bold; line-height: 1.5; margin-bottom: 12px; }
+
+    .status-line { font-size: 14px; color: #475569; margin-bottom: 10px; min-height: 20px; }
+
+    .timer { font-weight: bold; color: #dc2626; }
+
+    audio { width: 100%; margin: 10px 0; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn-record { background: #2563eb; color: white; }
+    .btn-stop { background: #dc2626; color: white; }
+    .btn-redo { background: #64748b; color: white; }
+    .btn-retry { background: #d97706; color: white; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error {
+      color: #b91c1c;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+    }
+
+    .success-final {
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+      color: #065f46;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .hidden { display: none; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #cbd5e1;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gravação de Áudio</h1>
+    <p class="intro" id="introText">Este é o último passo da sua participação. Grave os áudios abaixo diretamente nesta página — não é necessário abrir nenhuma outra janela.</p>
+
+    <div class="progress-banner" id="progressBanner">Carregando...</div>
+
+    <div id="cardsContainer"></div>
+
+    <div id="finalMessage"></div>
+  </div>
+
+  <script>
+    // ---------------------------------------------------------------------
+    // CONFIGURAÇÃO — cole aqui a URL do seu Web App do Apps Script (a URL
+    // que termina em /exec, obtida em "Implantar > Gerenciar implantações").
+    // ---------------------------------------------------------------------
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzL4wpHZwnYjV_bgjwbPnTFaebEg6fW7fiVfrPdwTfMQIXjbWV8F8HWo6-zyQh1YQ6a7Q/exec';
+
+    const AUDIO_ITEMS = [
+      {
+        item: 'Audio_01',
+        pergunta: 'Grave um áudio contando de 1 a 10, pausadamente, como se estivesse contando os segundos.'
+      },
+      {
+        item: 'Audio_02',
+        pergunta: 'Grave um áudio contando como foi a sua última semana.'
+      }
+    ];
+
+    const params = new URLSearchParams(window.location.search);
+    const draftId = params.get('draftId');
+    const participantId = params.get('participantId');
+
+    const recordings = {};   // item -> { blob, uploaded: bool }
+    const mediaState = {};   // item -> { stream, recorder, chunks, timerInterval, seconds }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      if (!draftId || !participantId) {
+        document.getElementById('progressBanner').outerHTML =
+          '<div class="error">Link inválido ou incompleto. Volte à etapa anterior e use o link fornecido ao final do questionário.</div>';
+        return;
+      }
+
+      renderCards();
+      await carregarStatus();
+    }
+
+    function renderCards() {
+      const container = document.getElementById('cardsContainer');
+      container.innerHTML = '';
+
+      AUDIO_ITEMS.forEach(function(cfg) {
+        const card = document.createElement('div');
+        card.className = 'audio-card';
+        card.id = 'card_' + cfg.item;
+
+        const pergunta = document.createElement('div');
+        pergunta.className = 'pergunta';
+        pergunta.textContent = cfg.pergunta;
+        card.appendChild(pergunta);
+
+        const statusLine = document.createElement('div');
+        statusLine.className = 'status-line';
+        statusLine.id = 'status_' + cfg.item;
+        statusLine.textContent = 'Nenhum áudio gravado.';
+        card.appendChild(statusLine);
+
+        const audioPreview = document.createElement('audio');
+        audioPreview.id = 'preview_' + cfg.item;
+        audioPreview.controls = true;
+        audioPreview.className = 'hidden';
+        card.appendChild(audioPreview);
+
+        const controls = document.createElement('div');
+        controls.className = 'controls';
+        controls.id = 'controls_' + cfg.item;
+
+        const btnRecord = document.createElement('button');
+        btnRecord.className = 'btn-record';
+        btnRecord.id = 'btnRecord_' + cfg.item;
+        btnRecord.textContent = '🎙️ Gravar áudio';
+        btnRecord.onclick = function() { toggleRecording(cfg.item); };
+        controls.appendChild(btnRecord);
+
+        card.appendChild(controls);
+
+        const errorBox = document.createElement('div');
+        errorBox.className = 'error hidden';
+        errorBox.id = 'error_' + cfg.item;
+        card.appendChild(errorBox);
+
+        container.appendChild(card);
+      });
+    }
+
+    async function carregarStatus() {
+      try {
+        const url = APPS_SCRIPT_URL + '?action=status&draftId=' + encodeURIComponent(draftId);
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        if (data.status !== 'sucesso') {
+          document.getElementById('progressBanner').outerHTML =
+            '<div class="error">' + (data.message || 'Não foi possível carregar seu progresso.') + '</div>';
+          return;
+        }
+
+        (data.itensEnviados || []).forEach(function(item) {
+          recordings[item] = { blob: null, uploaded: true };
+          marcarItemComoEnviado(item);
+        });
+
+        atualizarBannerProgresso();
+        verificarConclusao();
+      } catch (err) {
+        document.getElementById('progressBanner').outerHTML =
+          '<div class="error">Não foi possível conectar ao servidor. Verifique sua internet e recarregue a página.</div>';
+      }
+    }
+
+    function atualizarBannerProgresso() {
+      const total = AUDIO_ITEMS.length;
+      const enviados = AUDIO_ITEMS.filter(function(c) { return recordings[c.item] && recordings[c.item].uploaded; }).length;
+      const banner = document.getElementById('progressBanner');
+      if (banner) banner.textContent = 'Áudios concluídos: ' + enviados + ' de ' + total;
+    }
+
+    function marcarItemComoEnviado(item) {
+      const card = document.getElementById('card_' + item);
+      if (card) card.classList.add('done');
+
+      const status = document.getElementById('status_' + item);
+      if (status) status.textContent = '✔ Áudio enviado com sucesso.';
+
+      const controls = document.getElementById('controls_' + item);
+      if (controls) {
+        controls.innerHTML = '';
+        const btnRedo = document.createElement('button');
+        btnRedo.className = 'btn-redo';
+        btnRedo.textContent = '🔁 Regravar';
+        btnRedo.onclick = function() { habilitarRegravacao(item); };
+        controls.appendChild(btnRedo);
+      }
+    }
+
+    function habilitarRegravacao(item) {
+      recordings[item] = { blob: null, uploaded: false };
+      const card = document.getElementById('card_' + item);
+      if (card) card.classList.remove('done');
+
+      document.getElementById('status_' + item).textContent = 'Nenhum áudio gravado.';
+      const preview = document.getElementById('preview_' + item);
+      preview.src = '';
+      preview.classList.add('hidden');
+
+      const controls = document.getElementById('controls_' + item);
+      controls.innerHTML = '';
+      const btnRecord = document.createElement('button');
+      btnRecord.className = 'btn-record';
+      btnRecord.id = 'btnRecord_' + item;
+      btnRecord.textContent = '🎙️ Gravar áudio';
+      btnRecord.onclick = function() { toggleRecording(item); };
+      controls.appendChild(btnRecord);
+
+      atualizarBannerProgresso();
+    }
+
+    // -----------------------------------------------------------------
+    // Gravação (getUserMedia + MediaRecorder), tudo na mesma página
+    // -----------------------------------------------------------------
+
+    async function toggleRecording(item) {
+      const state = mediaState[item];
+      if (state && state.recording) {
+        pararGravacao(item);
+      } else {
+        iniciarGravacao(item);
+      }
+    }
+
+    async function iniciarGravacao(item) {
+      resetError(item);
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = escolherMimeSuportado();
+        const recorder = new MediaRecorder(stream, mimeType ? { mimeType: mimeType } : undefined);
+        const chunks = [];
+
+        recorder.ondataavailable = function(e) {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = function() {
+          const blob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'audio/webm' });
+          stream.getTracks().forEach(function(t) { t.stop(); });
+          onGravacaoFinalizada(item, blob);
+        };
+
+        mediaState[item] = { stream: stream, recorder: recorder, recording: true, seconds: 0 };
+        recorder.start();
+
+        const btn = document.getElementById('btnRecord_' + item);
+        if (btn) {
+          btn.className = 'btn-stop';
+          btn.textContent = '⏹️ Parar gravação (0:00)';
+        }
+
+        mediaState[item].timerInterval = setInterval(function() {
+          mediaState[item].seconds++;
+          const s = mediaState[item].seconds;
+          const mm = Math.floor(s / 60);
+          const ss = String(s % 60).padStart(2, '0');
+          if (btn) btn.textContent = '⏹️ Parar gravação (' + mm + ':' + ss + ')';
+        }, 1000);
+
+        document.getElementById('status_' + item).textContent = 'Gravando...';
+      } catch (err) {
+        showError(item, 'Não foi possível acessar o microfone. Verifique se você permitiu o uso do microfone para este site (nas configurações do navegador) e tente novamente.');
+      }
+    }
+
+    function pararGravacao(item) {
+      const state = mediaState[item];
+      if (!state || !state.recording) return;
+
+      state.recording = false;
+      clearInterval(state.timerInterval);
+      state.recorder.stop();
+    }
+
+    function onGravacaoFinalizada(item, blob) {
+      recordings[item] = { blob: blob, uploaded: false };
+
+      const preview = document.getElementById('preview_' + item);
+      preview.src = URL.createObjectURL(blob);
+      preview.classList.remove('hidden');
+
+      document.getElementById('status_' + item).innerHTML = '<span class="spinner"></span>Enviando áudio...';
+
+      const controls = document.getElementById('controls_' + item);
+      controls.innerHTML = '';
+
+      enviarAudio(item, blob);
+    }
+
+    function escolherMimeSuportado() {
+      const candidatos = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+      if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+      for (let i = 0; i < candidatos.length; i++) {
+        if (MediaRecorder.isTypeSupported(candidatos[i])) return candidatos[i];
+      }
+      return '';
+    }
+
+    // -----------------------------------------------------------------
+    // Envio para o Apps Script
+    // -----------------------------------------------------------------
+
+    function blobParaBase64(blob) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onloadend = function() { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function enviarAudio(item, blob) {
+      try {
+        const base64 = await blobParaBase64(blob);
+
+        const resp = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          // Content-Type text/plain evita o preflight OPTIONS (que o Apps Script não suporta).
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            draftId: draftId,
+            participantId: participantId,
+            item: item,
+            audioBase64: base64
+          })
+        });
+
+        const data = await resp.json();
+
+        if (data.status === 'sucesso') {
+          recordings[item].uploaded = true;
+          marcarItemComoEnviado(item);
+          atualizarBannerProgresso();
+          verificarConclusao();
+        } else {
+          mostrarErroDeEnvio(item, blob, data.message || 'Erro ao salvar o áudio.');
+        }
+      } catch (err) {
+        mostrarErroDeEnvio(item, blob, 'Falha de conexão ao enviar o áudio. Verifique sua internet.');
+      }
+    }
+
+    function mostrarErroDeEnvio(item, blob, mensagem) {
+      showError(item, mensagem + ' O áudio gravado foi mantido — toque em "Tentar novamente".');
+      document.getElementById('status_' + item).textContent = 'Envio falhou.';
+
+      const controls = document.getElementById('controls_' + item);
+      controls.innerHTML = '';
+
+      const btnRetry = document.createElement('button');
+      btnRetry.className = 'btn-retry';
+      btnRetry.textContent = '🔄 Tentar novamente';
+      btnRetry.onclick = function() {
+        resetError(item);
+        document.getElementById('status_' + item).innerHTML = '<span class="spinner"></span>Enviando áudio...';
+        controls.innerHTML = '';
+        enviarAudio(item, blob);
+      };
+      controls.appendChild(btnRetry);
+
+      const btnRedo = document.createElement('button');
+      btnRedo.className = 'btn-redo';
+      btnRedo.textContent = '🔁 Regravar';
+      btnRedo.onclick = function() { habilitarRegravacao(item); };
+      controls.appendChild(btnRedo);
+    }
+
+    function verificarConclusao() {
+      const todosEnviados = AUDIO_ITEMS.every(function(c) {
+        return recordings[c.item] && recordings[c.item].uploaded;
+      });
+
+      if (todosEnviados) {
+        document.getElementById('introText').classList.add('hidden');
+        document.getElementById('finalMessage').innerHTML =
+          '<div class="success-final"><strong>Obrigado pela sua participação!</strong><br>Seus áudios foram registrados com sucesso. Você já pode fechar esta página.</div>';
+      }
+    }
+
+    function showError(item, msg) {
+      const el = document.getElementById('error_' + item);
+      if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+    }
+
+    function resetError(item) {
+      const el = document.getElementById('error_' + item);
+      if (el) { el.textContent = ''; el.classList.add('hidden'); }
+    }
+  </script>
+</body>
+</html>
