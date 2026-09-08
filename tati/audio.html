@@ -12,21 +12,15 @@
       padding: 0;
       color: #1f2937;
     }
-
     .container {
       max-width: 900px;
       margin: 30px auto;
-      background: #ffffff;
+      background: #fff;
       border-radius: 12px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 18px rgba(0,0,0,.08);
       padding: 28px;
     }
-
-    h1 {
-      margin-top: 0;
-      font-size: 28px;
-    }
-
+    h1 { margin-top: 0; font-size: 28px; }
     .intro {
       background: #eef2ff;
       border-left: 5px solid #4f46e5;
@@ -35,7 +29,6 @@
       line-height: 1.5;
       margin-bottom: 20px;
     }
-
     .progress {
       background: #eff6ff;
       border: 1px solid #93c5fd;
@@ -45,7 +38,6 @@
       font-weight: 700;
       margin: 18px 0;
     }
-
     .task {
       margin-bottom: 22px;
       padding: 18px;
@@ -53,32 +45,10 @@
       border: 1px solid #e5e7eb;
       border-radius: 10px;
     }
-
-    .task.saved {
-      border-color: #10b981;
-      background: #f0fdf4;
-    }
-
-    .question {
-      font-weight: 700;
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .hint {
-      font-size: 13px;
-      color: #6b7280;
-      margin-top: 8px;
-      line-height: 1.45;
-    }
-
-    .status {
-      font-size: 14px;
-      font-weight: 600;
-      margin: 8px 0;
-      min-height: 20px;
-    }
-
+    .task.saved { border-color: #10b981; background: #f0fdf4; }
+    .question { font-weight: 700; line-height: 1.5; margin-bottom: 10px; }
+    .hint { font-size: 13px; color: #6b7280; margin-top: 8px; line-height: 1.45; }
+    .status { font-size: 14px; font-weight: 600; margin: 8px 0; min-height: 20px; }
     .timer {
       display: none;
       font-size: 22px;
@@ -87,18 +57,8 @@
       letter-spacing: 2px;
       margin: 8px 0;
     }
-
-    .timer.active {
-      display: block;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
+    .timer.active { display: block; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
     button {
       border: none;
       border-radius: 8px;
@@ -106,37 +66,13 @@
       cursor: pointer;
       font-size: 15px;
     }
-
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-    }
-
-    .btn-danger {
-      background: #dc2626;
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #64748b;
-      color: white;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    audio {
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    .upload {
-      margin-top: 8px;
-      color: #2563eb;
-      font-size: 13px;
-    }
-
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-secondary { background: #64748b; color: #fff; }
+    .hidden { display: none !important; }
+    audio { width: 100%; margin-top: 10px; }
+    .upload { margin-top: 8px; color: #2563eb; font-size: 13px; }
     .success {
       background: #ecfdf5;
       border: 1px solid #10b981;
@@ -146,7 +82,6 @@
       margin-top: 20px;
       line-height: 1.5;
     }
-
     .error {
       background: #fef2f2;
       border: 1px solid #fecaca;
@@ -158,15 +93,15 @@
     }
   </style>
 </head>
-
 <body>
 <div class="container">
-  <h1>Gravação de áudio</h1>
+  <h1>Etapa de gravação de áudio</h1>
 
   <div class="intro">
-    Agora vamos realizar a etapa final da pesquisa. Grave cada resposta separadamente.
-    Depois de parar uma gravação, o arquivo será enviado automaticamente ao servidor.
-    Se quiser refazer, use o botão <strong>Regravar</strong>.
+    Esta é a etapa final da pesquisa. Serão <strong>11 gravações</strong>.
+    Grave cada resposta separadamente. Depois que você parar uma gravação,
+    o arquivo será enviado automaticamente. Se quiser substituir uma resposta,
+    use <strong>Regravar</strong>.
   </div>
 
   <div id="progress" class="progress">Áudios concluídos: 0 de 11</div>
@@ -184,57 +119,46 @@ const participantId = params.get('participantId');
 const AUDIO_TASKS = [
   {
     item: 'Audio_Contagem',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Agora vamos gravar um áudio breve. Por favor, grave-se contando de 1 a 10 em voz alta, em ritmo natural de fala, como se estivesse contando normalmente. A gravação deve durar cerca de 10 segundos.'
   },
   {
     item: 'AudioNarr_01',
-    bloco: 'Áudios Narrativos',
     pergunta: 'De que forma você sente, no seu corpo ou na sua saúde, os impactos das mudanças ambientais?'
   },
   {
     item: 'AudioNarr_02',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Você sente que pode fazer algo para mudar ou amenizar os problemas ambientais? Por quê?'
   },
   {
     item: 'AudioNarr_03',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Conte uma lembrança especial de um momento em que você se sentiu conectado à natureza.'
   },
   {
     item: 'AudioNarr_04',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Você sente que sua relação com a natureza mudou nos últimos anos? Como?'
   },
   {
     item: 'AudioNarr_05',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Quando você pensa no futuro do planeta, o que sente?'
   },
   {
     item: 'AudioNarr_06',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Na sua opinião, de quem é a responsabilidade por cuidar do meio ambiente?'
   },
   {
     item: 'AudioNarr_07',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Você sente que faz parte da natureza ou do ambiente onde vive? Como isso influencia sua vida?'
   },
   {
     item: 'AudioNarr_08',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Quais mudanças ambientais você percebeu no lugar onde você vive nos últimos anos?'
   },
   {
     item: 'AudioNarr_09',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Como você se sente em relação ao futuro das próximas gerações, diante das mudanças ambientais?'
   },
   {
     item: 'AudioNarr_10',
-    bloco: 'Áudios Narrativos',
     pergunta: 'Qual é a primeira emoção ou sentimento que vem à sua mente quando você pensa na destruição ambiental?'
   }
 ];
@@ -242,34 +166,66 @@ const AUDIO_TASKS = [
 const state = {
   saved: new Set(),
   recorders: {},
-  previewUrls: {}
+  previewUrls: {},
+  finalizing: false
 };
 
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener('DOMContentLoaded', async () => {
   if (!draftId || !participantId) {
-    showGlobalError('Sessão inválida. Volte ao questionário e tente novamente.');
+    showGlobalError('Sessão inválida. Volte ao início da pesquisa e tente novamente.');
+    disableAllRecording();
+    return;
+  }
+
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
+    showGlobalError('Este navegador não oferece suporte à gravação de áudio necessária para esta pesquisa.');
+    disableAllRecording();
     return;
   }
 
   renderTasks();
   await carregarAudiosSalvos();
   updateProgress();
+
+  if (state.saved.size === AUDIO_TASKS.length) {
+    await concluirParticipacao();
+  }
 });
+
+async function api(payload) {
+  const response = await fetch(APP_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha de comunicação com o servidor.');
+  }
+
+  const data = await response.json();
+
+  if (!data || data.status !== 'sucesso') {
+    throw new Error(data && (data.message || data.mensagem) ? (data.message || data.mensagem) : 'Erro desconhecido no servidor.');
+  }
+
+  return data;
+}
 
 function renderTasks() {
   const root = document.getElementById('tasks');
   root.innerHTML = '';
 
-  AUDIO_TASKS.forEach(function (task, index) {
+  AUDIO_TASKS.forEach((task, index) => {
     const sid = sanitizeId(task.item);
     const div = document.createElement('div');
     div.className = 'task';
     div.id = 'task_' + sid;
 
-    const numero = document.createElement('div');
-    numero.className = 'hint';
-    numero.textContent = 'Áudio ' + (index + 1) + ' de ' + AUDIO_TASKS.length;
-    div.appendChild(numero);
+    const n = document.createElement('div');
+    n.className = 'hint';
+    n.textContent = 'Áudio ' + (index + 1) + ' de ' + AUDIO_TASKS.length;
+    div.appendChild(n);
 
     const q = document.createElement('div');
     q.className = 'question';
@@ -279,7 +235,7 @@ function renderTasks() {
     if (task.item !== 'Audio_Contagem') {
       const h = document.createElement('div');
       h.className = 'hint';
-      h.textContent = 'Sugestão: responda livremente, em aproximadamente 30 segundos a 2 minutos.';
+      h.textContent = 'Responda livremente. Não há necessidade de decorar ou preparar uma resposta.';
       div.appendChild(h);
     }
 
@@ -310,148 +266,120 @@ function renderTasks() {
     const controls = document.createElement('div');
     controls.className = 'controls';
 
-    const startBtn = document.createElement('button');
-    startBtn.type = 'button';
-    startBtn.className = 'btn-primary';
-    startBtn.id = 'start_' + sid;
-    startBtn.textContent = '🎙️ Iniciar gravação';
-    startBtn.onclick = function () { startRecording(task.item); };
+    const start = document.createElement('button');
+    start.type = 'button';
+    start.className = 'btn-primary';
+    start.id = 'start_' + sid;
+    start.textContent = '🎙️ Iniciar gravação';
+    start.onclick = () => startRecording(task.item);
 
-    const stopBtn = document.createElement('button');
-    stopBtn.type = 'button';
-    stopBtn.className = 'btn-danger hidden';
-    stopBtn.id = 'stop_' + sid;
-    stopBtn.textContent = '⏹ Parar gravação';
-    stopBtn.onclick = function () { stopRecording(task.item); };
+    const stop = document.createElement('button');
+    stop.type = 'button';
+    stop.className = 'btn-danger hidden';
+    stop.id = 'stop_' + sid;
+    stop.textContent = '⏹ Parar gravação';
+    stop.onclick = () => stopRecording(task.item);
 
-    const redoBtn = document.createElement('button');
-    redoBtn.type = 'button';
-    redoBtn.className = 'btn-secondary hidden';
-    redoBtn.id = 'redo_' + sid;
-    redoBtn.textContent = '🔄 Regravar';
-    redoBtn.onclick = function () { redoRecording(task.item); };
+    const redo = document.createElement('button');
+    redo.type = 'button';
+    redo.className = 'btn-secondary hidden';
+    redo.id = 'redo_' + sid;
+    redo.textContent = '🔄 Regravar';
+    redo.onclick = () => redoRecording(task.item);
 
-    controls.appendChild(startBtn);
-    controls.appendChild(stopBtn);
-    controls.appendChild(redoBtn);
-
+    controls.appendChild(start);
+    controls.appendChild(stop);
+    controls.appendChild(redo);
     div.appendChild(controls);
     root.appendChild(div);
   });
-}
-
-async function api(payload) {
-  const response = await fetch(APP_SCRIPT_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    throw new Error('Falha de comunicação com o servidor.');
-  }
-
-  return await response.json();
 }
 
 async function carregarAudiosSalvos() {
   try {
     const res = await api({
       action: 'listarAudios',
-      draftId: draftId,
-      participantId: participantId
+      draftId,
+      participantId
     });
 
-    if (!res || res.status !== 'sucesso') return;
-
-    (res.itens || []).forEach(function (item) {
-      state.saved.add(item);
-      markSaved(item);
+    const itens = Array.isArray(res.itens) ? res.itens : [];
+    itens.forEach(item => {
+      if (AUDIO_TASKS.some(t => t.item === item)) {
+        state.saved.add(item);
+        markSaved(item);
+      }
     });
-  } catch (e) {
-    console.warn('Não foi possível consultar áudios já salvos:', e);
+  } catch (err) {
+    console.warn('Não foi possível consultar os áudios já salvos:', err);
   }
 }
 
 async function startRecording(item) {
   const sid = sanitizeId(item);
 
-  let stream;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch (e) {
-    setStatus(item, 'Não foi possível acessar o microfone. Verifique a permissão do navegador.');
-    return;
-  }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-  const preferred = [
-    'audio/webm;codecs=opus',
-    'audio/webm',
-    'audio/mp4',
-    'audio/ogg'
-  ].find(function (type) {
-    return window.MediaRecorder &&
-           typeof MediaRecorder.isTypeSupported === 'function' &&
-           MediaRecorder.isTypeSupported(type);
-  }) || '';
+    const candidates = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/ogg'
+    ];
 
-  let recorder;
-  try {
-    recorder = preferred
-      ? new MediaRecorder(stream, { mimeType: preferred })
+    const mimeType = candidates.find(type =>
+      typeof MediaRecorder.isTypeSupported === 'function' &&
+      MediaRecorder.isTypeSupported(type)
+    ) || '';
+
+    const recorder = mimeType
+      ? new MediaRecorder(stream, { mimeType })
       : new MediaRecorder(stream);
-  } catch (e) {
-    stream.getTracks().forEach(function (track) { track.stop(); });
-    setStatus(item, 'Seu navegador não conseguiu iniciar a gravação.');
-    return;
+
+    const chunks = [];
+    let seconds = 0;
+
+    recorder.ondataavailable = event => {
+      if (event.data && event.data.size > 0) chunks.push(event.data);
+    };
+
+    recorder.onstop = () => {
+      finishRecording(item, chunks, recorder.mimeType || mimeType || 'audio/webm', stream);
+    };
+
+    recorder.start(1000);
+
+    const timerEl = document.getElementById('timer_' + sid);
+    timerEl.textContent = '00:00';
+    timerEl.classList.add('active');
+
+    const interval = setInterval(() => {
+      seconds++;
+      const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const sec = String(seconds % 60).padStart(2, '0');
+      timerEl.textContent = min + ':' + sec;
+    }, 1000);
+
+    state.recorders[item] = { recorder, stream, interval };
+
+    document.getElementById('start_' + sid).classList.add('hidden');
+    document.getElementById('redo_' + sid).classList.add('hidden');
+    document.getElementById('stop_' + sid).classList.remove('hidden');
+
+    setStatus(item, '🔴 Gravando...');
+  } catch (err) {
+    setStatus(item, 'Não foi possível acessar o microfone. Verifique a permissão do navegador.');
   }
-
-  const chunks = [];
-  let seconds = 0;
-
-  recorder.ondataavailable = function (event) {
-    if (event.data && event.data.size > 0) chunks.push(event.data);
-  };
-
-  recorder.onstop = function () {
-    finishRecording(item, chunks, recorder.mimeType || preferred || 'audio/webm', stream);
-  };
-
-  recorder.start(1000);
-
-  const timerEl = document.getElementById('timer_' + sid);
-  timerEl.textContent = '00:00';
-  timerEl.classList.add('active');
-
-  const interval = setInterval(function () {
-    seconds += 1;
-    const min = String(Math.floor(seconds / 60)).padStart(2, '0');
-    const sec = String(seconds % 60).padStart(2, '0');
-    timerEl.textContent = min + ':' + sec;
-  }, 1000);
-
-  state.recorders[item] = {
-    recorder: recorder,
-    stream: stream,
-    timerInterval: interval
-  };
-
-  document.getElementById('start_' + sid).classList.add('hidden');
-  document.getElementById('stop_' + sid).classList.remove('hidden');
-  document.getElementById('redo_' + sid).classList.add('hidden');
-
-  setStatus(item, '🔴 Gravando...');
 }
 
 function stopRecording(item) {
   const rec = state.recorders[item];
   if (!rec) return;
 
-  clearInterval(rec.timerInterval);
+  clearInterval(rec.interval);
 
-  if (rec.recorder && rec.recorder.state !== 'inactive') {
+  if (rec.recorder.state !== 'inactive') {
     rec.recorder.stop();
   }
 
@@ -460,9 +388,8 @@ function stopRecording(item) {
 }
 
 function finishRecording(item, chunks, mimeType, stream) {
-  stream.getTracks().forEach(function (track) {
-    track.stop();
-  });
+  stream.getTracks().forEach(track => track.stop());
+  delete state.recorders[item];
 
   const sid = sanitizeId(item);
   document.getElementById('timer_' + sid).classList.remove('active');
@@ -486,40 +413,41 @@ function finishRecording(item, chunks, mimeType, stream) {
   preview.src = previewUrl;
   preview.classList.remove('hidden');
 
+  uploadBlob(item, blob, mimeType);
+}
+
+function uploadBlob(item, blob, mimeType) {
+  const sid = sanitizeId(item);
   const reader = new FileReader();
 
-  reader.onloadend = async function () {
+  reader.onloadend = async () => {
     const audioData = reader.result;
 
     document.getElementById('upload_' + sid).classList.remove('hidden');
     setStatus(item, 'Enviando áudio ao servidor...');
 
     try {
-      const res = await api({
+      await api({
         action: 'salvarAudio',
-        draftId: draftId,
-        participantId: participantId,
-        item: item,
-        audioData: audioData,
-        mimeType: mimeType
+        draftId,
+        participantId,
+        item,
+        audioData,
+        mimeType
       });
 
       document.getElementById('upload_' + sid).classList.add('hidden');
-
-      if (!res || res.status !== 'sucesso') {
-        throw new Error(res && res.message ? res.message : 'Erro desconhecido.');
-      }
 
       state.saved.add(item);
       markSaved(item);
       updateProgress();
 
       if (state.saved.size === AUDIO_TASKS.length) {
-        await concluirSubmissao();
+        await concluirParticipacao();
       }
-    } catch (e) {
+    } catch (err) {
       document.getElementById('upload_' + sid).classList.add('hidden');
-      setStatus(item, 'Falha ao salvar o áudio: ' + e.message);
+      setStatus(item, 'Falha ao salvar o áudio: ' + err.message);
       document.getElementById('start_' + sid).classList.remove('hidden');
       document.getElementById('redo_' + sid).classList.remove('hidden');
     }
@@ -531,21 +459,6 @@ function finishRecording(item, chunks, mimeType, stream) {
 async function redoRecording(item) {
   const sid = sanitizeId(item);
 
-  try {
-    if (state.saved.has(item)) {
-      await api({
-        action: 'excluirAudio',
-        draftId: draftId,
-        participantId: participantId,
-        item: item
-      });
-    }
-  } catch (e) {
-    console.warn('Falha ao excluir áudio anterior:', e);
-  }
-
-  state.saved.delete(item);
-
   const preview = document.getElementById('preview_' + sid);
   preview.src = '';
   preview.classList.add('hidden');
@@ -555,72 +468,84 @@ async function redoRecording(item) {
     delete state.previewUrls[item];
   }
 
+  // Não apagamos o arquivo antigo antes da nova gravação.
+  // O backend substitui/trasha o anterior somente quando o novo upload chega com sucesso.
+  state.saved.delete(item);
+
+  document.getElementById('task_' + sid).classList.remove('saved');
   document.getElementById('start_' + sid).classList.remove('hidden');
   document.getElementById('stop_' + sid).classList.add('hidden');
   document.getElementById('redo_' + sid).classList.add('hidden');
 
-  document.getElementById('task_' + sid).classList.remove('saved');
-
-  setStatus(item, 'Nenhum áudio gravado.');
+  setStatus(item, 'Pronto para uma nova gravação.');
   updateProgress();
 }
 
 function markSaved(item) {
   const sid = sanitizeId(item);
+  const task = document.getElementById('task_' + sid);
+  if (task) task.classList.add('saved');
 
-  document.getElementById('task_' + sid).classList.add('saved');
-  document.getElementById('start_' + sid).classList.add('hidden');
-  document.getElementById('stop_' + sid).classList.add('hidden');
-  document.getElementById('redo_' + sid).classList.remove('hidden');
+  const start = document.getElementById('start_' + sid);
+  const stop = document.getElementById('stop_' + sid);
+  const redo = document.getElementById('redo_' + sid);
+
+  if (start) start.classList.add('hidden');
+  if (stop) stop.classList.add('hidden');
+  if (redo) redo.classList.remove('hidden');
 
   setStatus(item, '✅ Áudio salvo com sucesso.');
 }
 
 function updateProgress() {
-  const count = AUDIO_TASKS.filter(function (task) {
-    return state.saved.has(task.item);
-  }).length;
-
+  const count = AUDIO_TASKS.filter(task => state.saved.has(task.item)).length;
   document.getElementById('progress').textContent =
     'Áudios concluídos: ' + count + ' de ' + AUDIO_TASKS.length;
 }
 
-async function concluirSubmissao() {
+async function concluirParticipacao() {
+  if (state.finalizing) return;
+  state.finalizing = true;
+
   const msg = document.getElementById('globalMessage');
-
-  if (msg.dataset.finalizando === '1') return;
-  msg.dataset.finalizando = '1';
-
   msg.innerHTML =
-    '<div class="success">Todos os áudios foram enviados. Finalizando sua participação...</div>';
+    '<div class="success">Todos os 11 áudios foram enviados. Finalizando sua participação...</div>';
 
   try {
-    const res = await api({
-      action: 'salvarSubmissao',
-      draftId: draftId,
-      participantId: participantId,
-      respostas: {},
-      audios: Object.fromEntries(
-        AUDIO_TASKS.map(function (task) {
-          return [task.item, true];
-        })
-      )
+    await api({
+      action: 'finalizarParticipacao',
+      draftId,
+      participantId
     });
-
-    if (!res || res.status !== 'sucesso') {
-      throw new Error(res && res.message ? res.message : 'Erro desconhecido.');
-    }
 
     msg.innerHTML =
       '<div class="success"><strong>Obrigado pela sua participação.</strong><br>' +
-      'Suas respostas e seus 11 áudios foram registrados com sucesso.</div>';
-  } catch (e) {
-    msg.dataset.finalizando = '0';
+      'Suas respostas e seus 11 áudios foram registrados com sucesso. Você já pode fechar esta página.</div>';
+
+    lockFinishedInterface();
+  } catch (err) {
+    state.finalizing = false;
     msg.innerHTML =
-      '<div class="error">Os áudios foram enviados, mas houve uma falha ao finalizar a participação: ' +
-      e.message +
-      '. Não feche esta página e tente novamente recarregando-a.</div>';
+      '<div class="error">Os 11 áudios foram enviados, mas houve uma falha ao finalizar a participação: ' +
+      escapeHtml(err.message) +
+      '. Recarregue esta página para tentar a finalização novamente.</div>';
   }
+}
+
+function lockFinishedInterface() {
+  AUDIO_TASKS.forEach(task => {
+    const sid = sanitizeId(task.item);
+    const start = document.getElementById('start_' + sid);
+    const stop = document.getElementById('stop_' + sid);
+    const redo = document.getElementById('redo_' + sid);
+    if (start) start.disabled = true;
+    if (stop) stop.disabled = true;
+    if (redo) redo.disabled = true;
+  });
+}
+
+function disableAllRecording() {
+  document.querySelectorAll('button').forEach(btn => btn.disabled = true);
 }
 
 function setStatus(item, text) {
@@ -630,11 +555,20 @@ function setStatus(item, text) {
 
 function showGlobalError(text) {
   document.getElementById('globalMessage').innerHTML =
-    '<div class="error">' + text + '</div>';
+    '<div class="error">' + escapeHtml(text) + '</div>';
 }
 
 function sanitizeId(value) {
   return String(value).replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 </script>
 </body>
