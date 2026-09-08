@@ -3,94 +3,476 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Etapa de Áudio</title>
+  <title>Pesquisa de Saúde Mental</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-      color: #1f2937;
-    }
-    .container {
-      max-width: 760px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-      padding: 28px;
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 28px;
-    }
-    .card {
-      background: #eff6ff;
-      border: 1px solid #93c5fd;
-      color: #1e3a8a;
-      border-radius: 10px;
-      padding: 18px;
-      line-height: 1.55;
-      margin: 18px 0;
-    }
-    .status {
-      margin-top: 18px;
-      font-size: 14px;
-      color: #475569;
-    }
-    .error {
-      color: #b91c1c;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 18px;
-    }
-    a.button {
-      display: inline-block;
-      margin-top: 18px;
-      background: #2563eb;
-      color: #fff;
-      text-decoration: none;
-      padding: 12px 18px;
-      border-radius: 8px;
-      font-weight: 600;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; color: #1f2937; }
+    .container { max-width: 900px; margin: 30px auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.08); padding: 28px; }
+    h1 { margin-top: 0; font-size: 28px; }
+    h2 { margin-top: 32px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; font-size: 22px; }
+    .field { margin-bottom: 22px; padding: 16px; background: #fafafa; border: 1px solid #e5e7eb; border-radius: 10px; }
+    .field label.question { display: block; font-weight: bold; margin-bottom: 10px; line-height: 1.45; }
+    .hint { font-size: 13px; color: #6b7280; margin-top: 6px; line-height: 1.4; }
+    .important-hint { margin-top: 10px; padding: 10px 12px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px; color: #9a3412; font-size: 14px; line-height: 1.4; }
+    .audio-step-banner { margin: 16px 0 22px 0; padding: 14px 16px; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 10px; color: #1d4ed8; font-weight: 600; line-height: 1.45; }
+    .audio-progress { margin-top: 10px; font-size: 14px; color: #1e40af; font-weight: 600; }
+    input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="time"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 15px; margin-top: 6px; }
+    .radio-group { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .radio-option { display: flex; align-items: center; gap: 8px; background: #fff; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .enunciado { font-size: 16px; font-weight: 600; line-height: 1.5; color: #111827; background: #eef2ff; border-left: 5px solid #4f46e5; }
+    .audio-box { background: #fff; border: 1px dashed #94a3b8; border-radius: 10px; padding: 14px; }
+    .audio-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    button { border: none; border-radius: 8px; padding: 12px 16px; cursor: pointer; font-size: 15px; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-danger  { background: #dc2626; color: white; }
+    .btn-secondary { background: #64748b; color: white; }
+    .btn-submit  { width: 100%; background: #059669; color: white; font-size: 17px; padding: 14px; margin-top: 24px; }
+    .error   { color: #b91c1c; font-size: 14px; margin-top: 8px; }
+    .success { background: #ecfdf5; border: 1px solid #10b981; color: #065f46; padding: 14px; border-radius: 10px; margin-top: 20px; }
+    .hidden  { display: none !important; }
+    .loading { opacity: 0.6; pointer-events: none; }
+    .saved-indicator { margin-top: 16px; font-size: 13px; color: #475569; }
+    /* gravador nativo */
+    .rec-status { font-size: 14px; font-weight: 600; margin-bottom: 8px; min-height: 20px; }
+    .rec-timer  { font-size: 22px; font-weight: 700; color: #dc2626; letter-spacing: 2px; margin: 6px 0; display: none; }
+    .rec-timer.active { display: block; }
+    audio { width: 100%; margin-top: 10px; }
+    .uploading-indicator { font-size: 13px; color: #2563eb; margin-top: 6px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Etapa final da pesquisa</h1>
+<div class="container">
+  <h1>Pesquisa de Saúde Mental</h1>
+  <p>Por favor, responda às perguntas. O progresso é salvo automaticamente ao longo do preenchimento.</p>
+  <form id="researchForm"></form>
+  <div class="saved-indicator" id="savedIndicator">Preparando formulário...</div>
+  <div id="statusMessage"></div>
+</div>
 
-    <div class="card">
-      Você será direcionado(a) para a etapa de gravação de áudio.
-      São <strong>11 gravações</strong>: uma tarefa de contagem e 10 respostas narrativas.
-    </div>
+<script>
+let FORM_DEF = [];
+let draftId = null;
+let participantId = null;
+const respostas = {};
+let geo = {};
+let autosaveTimer = null;
+let autosaveInFlight = false;
+let hasLoadedForm = false;
 
-    <div id="status" class="status">Preparando a etapa de áudio...</div>
-    <div id="error"></div>
-  </div>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_-bJCkJT-Rw09jqI97eagxIqylTMXUTNlj2H3-Xzr8R9iq3msJII7tduyx1O_Sa9l/exec';
+const AUDIO_PAGE_URL = 'audio.html';
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const draftId = params.get('draftId');
-    const participantId = params.get('participantId');
+async function api(payload) {
+  const response = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
 
-    const statusEl = document.getElementById('status');
-    const errorEl = document.getElementById('error');
+  if (!response.ok) {
+    throw new Error('Falha de comunicação com o servidor.');
+  }
 
-    if (!draftId || !participantId) {
-      statusEl.textContent = '';
-      errorEl.innerHTML = '<div class="error">Não foi possível identificar sua sessão. Volte ao questionário e tente novamente.</div>';
-    } else {
-      const destino =
-        './audio.html' +
-        '?draftId=' + encodeURIComponent(draftId) +
-        '&participantId=' + encodeURIComponent(participantId);
+  const data = await response.json();
+  if (!data || data.status !== 'sucesso') {
+    throw new Error(data && data.message ? data.message : 'Erro desconhecido no servidor.');
+  }
+  return data;
+}
 
-      statusEl.textContent = 'Redirecionando...';
-      window.location.replace(destino);
+document.addEventListener('DOMContentLoaded', async function () {
+  try {
+    const session = await api({ action: 'createDraftSession' });
+    draftId = session.draftId;
+    participantId = session.participantId;
+
+    const formResponse = await api({ action: 'getFormDefinition' });
+    renderForm(formResponse.formDef || []);
+    hasLoadedForm = true;
+    updateSavedIndicator('Formulário carregado. O progresso será salvo automaticamente.');
+  } catch (err) {
+    showGlobalError('Erro ao iniciar a pesquisa: ' + err.message);
+  }
+});
+
+function renderForm(def) {
+  // Nesta etapa mostramos somente o questionário.
+  FORM_DEF = def.filter(function (campo) {
+    return campo.tipo !== 'Audio' &&
+           campo.item !== 'AudioNarr_Intro' &&
+           campo.item !== 'Final';
+  });
+
+  const form = document.getElementById('researchForm');
+  form.innerHTML = '';
+
+  const blocos = agruparPorBloco(FORM_DEF);
+  Object.keys(blocos).forEach(function (blocoNome) {
+    const section = document.createElement('div');
+    section.id = 'section_' + sanitizeId(blocoNome);
+
+    const title = document.createElement('h2');
+    title.textContent = blocoNome;
+    section.appendChild(title);
+
+    blocos[blocoNome].forEach(function (campo) {
+      section.appendChild(renderField(campo));
+    });
+
+    form.appendChild(section);
+  });
+
+  const transition = document.createElement('div');
+  transition.className = 'audio-step-banner';
+  transition.innerHTML =
+    '<strong>Próxima etapa: gravação de áudio.</strong><br>' +
+    'Depois de enviar o questionário, você será direcionado(a) para a etapa final, com 11 gravações de áudio.';
+  form.appendChild(transition);
+
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'button';
+  submitBtn.className = 'btn-submit';
+  submitBtn.textContent = 'Enviar questionário e continuar para os áudios';
+  submitBtn.addEventListener('click', enviarQuestionario);
+  form.appendChild(submitBtn);
+
+  applyVisibilityRules();
+}
+
+function agruparPorBloco(def) {
+  const grouped = {};
+  def.forEach(function (item) {
+    if (!grouped[item.bloco]) grouped[item.bloco] = [];
+    grouped[item.bloco].push(item);
+  });
+  return grouped;
+}
+
+function renderField(campo) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'field';
+  wrapper.id = 'field_' + sanitizeId(campo.item);
+  wrapper.dataset.item = campo.item;
+
+  if (campo.showIf) {
+    wrapper.dataset.showIfItem = campo.showIf.item;
+    wrapper.dataset.showIfEquals = campo.showIf.equals;
+  }
+
+  if (campo.tipo === 'Enunciado') {
+    wrapper.classList.add('enunciado');
+    wrapper.textContent = campo.pergunta;
+    return wrapper;
+  }
+
+  const label = document.createElement('label');
+  label.className = 'question';
+  label.textContent = campo.pergunta + (campo.obrigatorio ? ' *' : '');
+  wrapper.appendChild(label);
+
+  if (campo.tipo === 'Texto') {
+    const input = document.createElement('input');
+    input.type = campo.item === 'Identificacao_02' ? 'email' : 'text';
+    input.name = campo.item;
+    input.oninput = function (e) {
+      respostas[campo.item] = e.target.value;
+      scheduleAutosave();
+    };
+    wrapper.appendChild(input);
+  }
+
+  if (campo.tipo === 'Data') {
+    const input = document.createElement('input');
+    input.type = 'date';
+    input.name = campo.item;
+    input.oninput = function (e) {
+      respostas[campo.item] = formatDateBR(e.target.value);
+      scheduleAutosave();
+    };
+    wrapper.appendChild(input);
+  }
+
+  if (campo.tipo === 'Opcoes') {
+    const group = document.createElement('div');
+    group.className = 'radio-group';
+
+    campo.opcoes.forEach(function (op) {
+      const optId = sanitizeId(campo.item + '_' + op);
+      const div = document.createElement('label');
+      div.className = 'radio-option';
+      div.setAttribute('for', optId);
+
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = campo.item;
+      input.id = optId;
+      input.value = op;
+
+      input.onchange = function (e) {
+        respostas[campo.item] = e.target.value;
+
+        if (campo.item === 'TCLE_00' && e.target.value === 'Discordo') {
+          bloquearFormularioPorDiscordancia();
+        } else if (campo.item === 'TCLE_00' && e.target.value === 'Concordo') {
+          desbloquearFormulario();
+        }
+
+        if (campo.item === 'Geo_Consentimento') {
+          tratarGeolocalizacao(e.target.value);
+        }
+
+        clearHiddenDependentAnswers(campo.item);
+        applyVisibilityRules();
+        scheduleAutosave();
+      };
+
+      const span = document.createElement('span');
+      span.textContent = op;
+
+      div.appendChild(input);
+      div.appendChild(span);
+      group.appendChild(div);
+    });
+
+    wrapper.appendChild(group);
+  }
+
+  if (campo.observacoes) addHint(wrapper, campo.observacoes);
+
+  const error = document.createElement('div');
+  error.className = 'error hidden';
+  error.id = 'error_' + sanitizeId(campo.item);
+  wrapper.appendChild(error);
+
+  return wrapper;
+}
+
+function tratarGeolocalizacao(valor) {
+  if (valor !== 'Sim, autorizo') {
+    geo = {};
+    scheduleAutosave();
+    return;
+  }
+
+  if (!navigator.geolocation) {
+    geo = {};
+    updateSavedIndicator('Seu navegador não disponibilizou geolocalização. Você pode continuar normalmente.');
+    scheduleAutosave();
+    return;
+  }
+
+  updateSavedIndicator('Solicitando localização aproximada...');
+
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      geo = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      };
+      updateSavedIndicator('Localização aproximada registrada. O progresso será salvo automaticamente.');
+      scheduleAutosave();
+    },
+    function () {
+      geo = {};
+      updateSavedIndicator('Localização não obtida. Você pode continuar normalmente.');
+      scheduleAutosave();
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 10000,
+      maximumAge: 300000
     }
-  </script>
+  );
+}
+
+function applyVisibilityRules() {
+  FORM_DEF.forEach(function (campo) {
+    if (!campo.showIf) return;
+    const wrapper = document.getElementById('field_' + sanitizeId(campo.item));
+    if (!wrapper) return;
+    wrapper.classList.toggle(
+      'hidden',
+      respostas[campo.showIf.item] !== campo.showIf.equals
+    );
+  });
+}
+
+function clearHiddenDependentAnswers(changedItem) {
+  FORM_DEF.forEach(function (campo) {
+    if (!campo.showIf || campo.showIf.item !== changedItem) return;
+
+    if (respostas[changedItem] !== campo.showIf.equals) {
+      delete respostas[campo.item];
+
+      const wrapper = document.getElementById('field_' + sanitizeId(campo.item));
+      if (wrapper) {
+        wrapper.querySelectorAll('input').forEach(function (el) {
+          if (el.type === 'radio') el.checked = false;
+          else el.value = '';
+        });
+      }
+    }
+  });
+}
+
+function isCampoVisible(campo) {
+  return !campo.showIf ||
+         respostas[campo.showIf.item] === campo.showIf.equals;
+}
+
+function bloquearFormularioPorDiscordancia() {
+  Array.from(document.getElementById('researchForm').elements).forEach(function (el) {
+    if (el.name !== 'TCLE_00') el.disabled = true;
+  });
+
+  showGlobalError(
+    'Você marcou "Discordo". O formulário foi encerrado e não pode ser enviado.'
+  );
+  scheduleAutosave();
+}
+
+function desbloquearFormulario() {
+  Array.from(document.getElementById('researchForm').elements).forEach(function (el) {
+    el.disabled = false;
+  });
+
+  document.getElementById('statusMessage').innerHTML = '';
+  scheduleAutosave();
+}
+
+function validarFormulario() {
+  let ok = true;
+
+  FORM_DEF.forEach(function (campo) {
+    if (!campo.obrigatorio ||
+        campo.tipo === 'Enunciado' ||
+        !isCampoVisible(campo)) return;
+
+    const valor = respostas[campo.item];
+
+    if (valor === undefined ||
+        valor === null ||
+        String(valor).trim() === '') {
+      showError(campo.item, 'Este campo é obrigatório.');
+      ok = false;
+    } else {
+      resetError(campo.item);
+    }
+  });
+
+  if (respostas['TCLE_00'] !== 'Concordo') {
+    showError('TCLE_00', 'Você precisa concordar com o TCLE para participar.');
+    ok = false;
+  }
+
+  return ok;
+}
+
+function scheduleAutosave() {
+  if (!hasLoadedForm || !draftId || !participantId) return;
+
+  updateSavedIndicator('Salvando progresso...');
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(salvarRascunhoSilencioso, 1200);
+}
+
+async function salvarRascunhoSilencioso() {
+  if (autosaveInFlight || !draftId || !participantId) return;
+
+  autosaveInFlight = true;
+
+  try {
+    await api({
+      action: 'salvarRascunho',
+      draftId: draftId,
+      participantId: participantId,
+      respostas: respostas,
+      geo: geo
+    });
+    updateSavedIndicator('Progresso salvo automaticamente.');
+  } catch (err) {
+    updateSavedIndicator('Falha ao salvar rascunho: ' + err.message);
+  } finally {
+    autosaveInFlight = false;
+  }
+}
+
+async function enviarQuestionario() {
+  if (!validarFormulario()) {
+    showGlobalError('Por favor, revise os campos obrigatórios antes de continuar.');
+    return;
+  }
+
+  const form = document.getElementById('researchForm');
+  form.classList.add('loading');
+
+  document.getElementById('statusMessage').innerHTML =
+    '<div class="hint">Salvando o questionário, aguarde...</div>';
+
+  try {
+    await api({
+      action: 'salvarSubmissao',
+      draftId: draftId,
+      participantId: participantId,
+      respostas: respostas,
+      geo: geo
+    });
+
+    const destino =
+      AUDIO_PAGE_URL +
+      '?draftId=' + encodeURIComponent(draftId) +
+      '&participantId=' + encodeURIComponent(participantId);
+
+    window.location.href = destino;
+  } catch (err) {
+    form.classList.remove('loading');
+    showGlobalError('Erro ao salvar o questionário: ' + err.message);
+  }
+}
+
+function addHint(wrapper, text) {
+  const h = document.createElement('div');
+  h.className = 'hint';
+  h.textContent = text;
+  wrapper.appendChild(h);
+}
+
+function updateSavedIndicator(text) {
+  const el = document.getElementById('savedIndicator');
+  if (el) el.textContent = text;
+}
+
+function sanitizeId(str) {
+  return String(str).replace(/[^a-zA-Z0-9_-]/g, '_');
+}
+
+function showError(item, msg) {
+  const el = document.getElementById('error_' + sanitizeId(item));
+  if (el) {
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+}
+
+function resetError(item) {
+  const el = document.getElementById('error_' + sanitizeId(item));
+  if (el) {
+    el.textContent = '';
+    el.classList.add('hidden');
+  }
+}
+
+function showGlobalError(msg) {
+  document.getElementById('statusMessage').innerHTML =
+    '<div class="error">' + msg + '</div>';
+}
+
+function formatDateBR(isoDate) {
+  if (!isoDate) return '';
+  const parts = isoDate.split('-');
+  return parts.length === 3
+    ? parts[2] + '/' + parts[1] + '/' + parts[0]
+    : isoDate;
+}
+</script>
 </body>
 </html>
